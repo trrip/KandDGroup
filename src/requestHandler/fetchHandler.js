@@ -1,28 +1,43 @@
 import { Component } from "react";
+import ResultViewer from "../view/result-viewer";
+import graphdb from "../graph-handler";
+import obj from "../controller/model-controller";
 export default class RequestHandler extends Component {
   constructor(props) {
     super(props);
-    this.state = { querry: "", result: "s" };
+    this.state = { result: "-", currentValue: "" };
   }
   clickHandler = (event) => {
+    if (event.target.value === "") return;
     //   perform the actiont
     let tempquerry = this.state.querry;
+    // console.log(graphdb);
+
+    const select = event.target.value;
+
+    graphdb.Query.query(select, (err, data) => {
+      console.log(data);
+      console.log(err);
+      this.setState({ result: data, currentValue: select });
+    }); // fetch("")
+
     this.setState({ result: tempquerry });
   };
-  onInputChangeHandler = (change) => {
-    this.setState({ querry: change.target.value });
-  };
+
   render() {
+    let storage = obj;
+    console.log(storage);
     return (
       <div>
-        <h1>Enter your querry here</h1>
-        <input
-          type="text"
-          value={this.querry}
-          onChange={this.onInputChangeHandler}
-        ></input>
-        <button onClick={this.clickHandler}>click me to get result</button>
-        <h1>{this.state.result}</h1>
+        <h1>Selct your query here</h1>
+        <select value={this.state.currentValue} onChange={this.clickHandler}>
+          <option value=""></option>
+          {storage.listHolder.map((s) => (
+            <option value={s.querry}>{s.querryName}</option>
+          ))}
+        </select>
+        {/* <h6>{this.state.result}</h6> */}
+        <ResultViewer list={this.state.result} />
       </div>
     );
   }
